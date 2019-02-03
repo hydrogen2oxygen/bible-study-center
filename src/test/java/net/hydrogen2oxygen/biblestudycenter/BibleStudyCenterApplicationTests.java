@@ -28,24 +28,18 @@ import java.util.Optional;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class BibleStudyCenterApplicationTests {
 
-	public static final String HTTP_LOCALHOST_8080_API_TIMELINE = "http://localhost:8080/api/timeline";
-	private WebTestClient testClient;
-
 	@Autowired
 	private TimelineRepository timelineRepository;
 
 	@Test
 	public void testTimelineRest() {
 
-		RouterFunction createTimeline = RouterFunctions.route(
-				RequestPredicates.POST(HTTP_LOCALHOST_8080_API_TIMELINE),
-				request -> ServerResponse.ok().build()
-		);
-
 		Timeline timeline = new Timeline();
 		timeline.setName("Test");
+		timeline = timelineRepository.save(timeline);
 
 		TimeObject timeObject = new TimeObject();
+		timeObject.setTimelineId(timeline.getId());
 		timeObject.setName("Test Time");
 		timeObject.setStart(Calendar.getInstance());
 		timeObject.setEnd(Calendar.getInstance());
@@ -54,22 +48,10 @@ public class BibleStudyCenterApplicationTests {
 		timeline = timelineRepository.save(timeline);
 		showAllTimelines();
 
-		Assert.assertTrue(timeline.getTimeObjectList().size() > 0);
-
-		timeline.setName("Test 2");
-		timeline = timelineRepository.save(timeline);
-		showAllTimelines();
-
-		Assert.assertTrue(timeline.getTimeObjectList().size() > 0);
-
-		timeline = timelineRepository.save(timeline);
-		showAllTimelines();
-
-		Assert.assertTrue(timeline.getTimeObjectList().size() > 0);
-
 		System.err.println("----------------------");
 		Optional<Timeline> timeline1 = timelineRepository.findById(timeline.getId());
 		showTimeLine(timeline1.get());
+		Assert.assertTrue(timeline1.get().getTimeObjectList().size() > 0);
 	}
 
 	private void showAllTimelines() {
