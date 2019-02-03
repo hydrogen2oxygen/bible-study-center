@@ -1,4 +1,4 @@
-package net.hydrogen2oxygen.biblestudycenter.security;
+package net.hydrogen2oxygen.biblestudycenter.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
