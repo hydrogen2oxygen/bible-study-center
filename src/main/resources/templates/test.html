@@ -1,10 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html class='default' xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Bible Study Center">
     <meta name="author" content="Pietro Lusso">
+    <meta id="_csrf" name="_csrf" th:content="${_csrf.token}"/>
+    <meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>TEST - Bible Study Center</title>
 
     <!-- Bootstrap core CSS -->
@@ -34,10 +36,14 @@
         <div class="container">
             <h1 class="jumbotron-heading">TEST</h1>
             <p>
-                <a href="#" class="btn btn-warning my-2" id="testPersistence">Test Persistence</a>
+                <a href="#" class="btn btn-warning my-2" id="testPersistence">Test Suite</a>
             </p>
         </div>
     </section>
+
+    <div id="testResult" style="text-align: center;">
+        <pre style="display: inline-block; text-align: left;" id="testResultData"></pre>
+    </div>
 </main>
 
 <footer class="text-muted">
@@ -53,7 +59,13 @@
 <script src="js/bibleStudyCenter.js"></script>
 <script>
     $("#testPersistence").click(function () {
-        test.testPersistence();
+        test.suite(function () {
+            $('#testResultData').html(JSON.stringify(testResult, null, 2));
+
+            if (testResult.persistenceTest === "Success!") {
+                $('#testResult').append('<span class="badge badge-success">PersistenceTest OK!</span>');
+            }
+        });
     });
 </script>
 </html>
