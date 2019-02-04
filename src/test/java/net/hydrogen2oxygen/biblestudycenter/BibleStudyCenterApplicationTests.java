@@ -1,72 +1,107 @@
 package net.hydrogen2oxygen.biblestudycenter;
 
+import net.hydrogen2oxygen.biblestudycenter.dao.BookRepository;
 import net.hydrogen2oxygen.biblestudycenter.dao.TimelineRepository;
+import net.hydrogen2oxygen.biblestudycenter.domain.Book;
 import net.hydrogen2oxygen.biblestudycenter.domain.TimeObject;
 import net.hydrogen2oxygen.biblestudycenter.domain.Timeline;
-import org.hibernate.Hibernate;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.context.WebServerApplicationContext;
-import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.server.RequestPredicates;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class BibleStudyCenterApplicationTests {
 
-	@Autowired
-	private TimelineRepository timelineRepository;
+    @Autowired
+    private TimelineRepository timelineRepository;
 
-	@Test
-	public void testTimelineRest() {
+    @Autowired
+    private BookRepository bookRepository;
 
-		Timeline timeline = new Timeline();
-		timeline.setName("Test");
-		timeline = timelineRepository.save(timeline);
+    @Test
+    public void testBookPersistence() throws Exception {
+        File booksFile = new File(new File("").getAbsolutePath() + "/src/main/resources/data/bibleBooks.txt");
+        List<String> lines = FileUtils.readLines(booksFile, "UTF-8");
 
-		TimeObject timeObject = new TimeObject();
-		timeObject.setTimelineId(timeline.getId());
-		timeObject.setName("Test Time");
-		timeObject.setStart(Calendar.getInstance());
-		timeObject.setEnd(Calendar.getInstance());
-		timeline.getTimeObjectList().add(timeObject);
+        TreeMap<String, Book> books = new TreeMap<String, Book>();
 
-		timeline = timelineRepository.save(timeline);
-		showAllTimelines();
+        for (String line : lines) {
+            String parts[] = line.split(",");
 
-		System.err.println("----------------------");
-		Optional<Timeline> timeline1 = timelineRepository.findById(timeline.getId());
-		showTimeLine(timeline1.get());
-		Assert.assertTrue(timeline1.get().getTimeObjectList().size() > 0);
-	}
+            String bookName = parts[0];
+            String chapter = parts[1];
+            String verse = parts[2];
 
-	private void showAllTimelines() {
-		for (Timeline t : timelineRepository.findAll()) {
-			showTimeLine(t);
-		}
-	}
+            if (books.get(bookName) == null) {
+                Book book = new Book();
+                book.setName(bookName);
+                books.put(bookName, book);
+            }
 
-	private void showTimeLine(Timeline t) {
-		System.out.println(t);
+            Book book = books.get(bookName);
 
-		for (TimeObject timeObject : t.getTimeObjectList()) {
-			System.out.println(timeObject);
-		}
-	}
+            bookRepository.save(book);
+        }
+
+        Iterable<Book> booksIterable = bookRepository.findAll();
+
+        int count = 0;
+
+        for (Book book : booksIterable) {
+            System.out.println(book);
+            count++;
+        }
+
+        Assert.assertEquals("The Holy Scriptures should have 66 books!", 66, count);
+    }
+
+    @Test
+    public void testTimelineRest() {
+
+        Timeline timeline = new Timeline();
+        timeline.setName("Test");
+        timeline = timelineRepository.save(timeline);
+
+        TimeObject timeObject = new TimeObject();
+        timeObject.setTimelineId(timeline.getId());
+        timeObject.setName("Test Time");
+        timeObject.setStart(Calendar.getInstance());
+        timeObject.setEnd(Calendar.getInstance());
+        timeline.getTimeObjectList().add(timeObject);
+
+        timeline = timelineRepository.save(timeline);
+        showAllTimelines();
+
+        System.err.println("----------------------");
+        Optional<Timeline> timeline1 = timelineRepository.findById(timeline.getId());
+        showTimeLine(timeline1.get());
+        Assert.assertTrue(timeline1.get().getTimeObjectList().size() > 0);
+    }
+
+    private void showAllTimelines() {
+        for (Timeline t : timelineRepository.findAll()) {
+            showTimeLine(t);
+        }
+    }
+
+    private void showTimeLine(Timeline t) {
+        System.out.println(t);
+
+        for (TimeObject timeObject : t.getTimeObjectList()) {
+            System.out.println(timeObject);
+        }
+    }
 
 }
 
