@@ -3,6 +3,7 @@ package net.hydrogen2oxygen.biblestudycenter;
 import net.hydrogen2oxygen.biblestudycenter.dao.BookRepository;
 import net.hydrogen2oxygen.biblestudycenter.dao.TimelineRepository;
 import net.hydrogen2oxygen.biblestudycenter.domain.Book;
+import net.hydrogen2oxygen.biblestudycenter.domain.Chapter;
 import net.hydrogen2oxygen.biblestudycenter.domain.TimeObject;
 import net.hydrogen2oxygen.biblestudycenter.domain.Timeline;
 import org.apache.commons.io.FileUtils;
@@ -31,6 +32,7 @@ public class BibleStudyCenterApplicationTests {
 
     @Test
     public void testBookPersistence() throws Exception {
+
         File booksFile = new File(new File("").getAbsolutePath() + "/src/main/resources/data/bibleBooks.txt");
         List<String> lines = FileUtils.readLines(booksFile, "UTF-8");
 
@@ -40,18 +42,26 @@ public class BibleStudyCenterApplicationTests {
             String parts[] = line.split(",");
 
             String bookName = parts[0];
-            String chapter = parts[1];
+            String chapterValue = parts[1];
             String verse = parts[2];
 
             if (books.get(bookName) == null) {
                 Book book = new Book();
                 book.setName(bookName);
-                books.put(bookName, book);
+                books.put(bookName, bookRepository.save(book));
             }
 
             Book book = books.get(bookName);
 
-            bookRepository.save(book);
+            System.out.println(book);
+
+            if (book.getChapters().size() < Integer.parseInt(removeLeadingZeros(chapterValue))) {
+
+                Chapter chapter = new Chapter();
+                chapter.setBookId(book.getId());
+                book.getChapters().add(chapter);
+                books.put(bookName, bookRepository.save(book));
+            }
         }
 
         Iterable<Book> booksIterable = bookRepository.findAll();
@@ -59,11 +69,21 @@ public class BibleStudyCenterApplicationTests {
         int count = 0;
 
         for (Book book : booksIterable) {
-            System.out.println(book);
+            System.out.println(book.getName() + " - " + book.getChapters().size());
             count++;
         }
 
         Assert.assertEquals("The Holy Scriptures should have 66 books!", 66, count);
+
+    }
+
+    private String removeLeadingZeros(String text) {
+
+        while (text.startsWith("0")) {
+            text = text.substring(1);
+        }
+
+        return text;
     }
 
     @Test
