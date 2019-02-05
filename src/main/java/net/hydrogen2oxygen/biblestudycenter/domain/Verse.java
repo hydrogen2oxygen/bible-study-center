@@ -19,6 +19,6 @@ public class Verse {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long chapterId;
-    private Long number;
+    private Integer number;
     private String description;
 }

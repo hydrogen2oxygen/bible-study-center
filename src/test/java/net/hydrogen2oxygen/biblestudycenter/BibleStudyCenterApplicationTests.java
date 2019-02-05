@@ -2,10 +2,7 @@ package net.hydrogen2oxygen.biblestudycenter;
 
 import net.hydrogen2oxygen.biblestudycenter.dao.BookRepository;
 import net.hydrogen2oxygen.biblestudycenter.dao.TimelineRepository;
-import net.hydrogen2oxygen.biblestudycenter.domain.Book;
-import net.hydrogen2oxygen.biblestudycenter.domain.Chapter;
-import net.hydrogen2oxygen.biblestudycenter.domain.TimeObject;
-import net.hydrogen2oxygen.biblestudycenter.domain.Timeline;
+import net.hydrogen2oxygen.biblestudycenter.domain.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,7 +40,7 @@ public class BibleStudyCenterApplicationTests {
 
             String bookName = parts[0];
             String chapterValue = parts[1];
-            String verse = parts[2];
+            String verseValue = parts[2];
 
             if (books.get(bookName) == null) {
                 Book book = new Book();
@@ -53,12 +50,28 @@ public class BibleStudyCenterApplicationTests {
 
             Book book = books.get(bookName);
 
-            if (book.getChapters().size() < Integer.parseInt(removeLeadingZeros(chapterValue))) {
+            int chapterNumber = Integer.parseInt(removeLeadingZeros(chapterValue));
+
+            if (book.getChapters().size() < chapterNumber) {
 
                 Chapter chapter = new Chapter();
                 chapter.setBookId(book.getId());
+                chapter.setNumber(chapterNumber);
                 book.getChapters().add(chapter);
-                books.put(bookName, bookRepository.save(book));
+                book = bookRepository.save(book);
+                books.put(bookName, book);
+            }
+
+            int verseNumber = Integer.parseInt(removeLeadingZeros(verseValue));
+
+            if (book.getChapters().get(chapterNumber - 1).getVerses().size() < verseNumber) {
+
+                Verse verse = new Verse();
+                verse.setChapterId(book.getChapters().get(chapterNumber - 1).getId());
+                verse.setNumber(verseNumber);
+                book.getChapters().get(chapterNumber - 1).getVerses().add(verse);
+                book = bookRepository.save(book);
+                books.put(bookName, book);
             }
         }
 
@@ -67,12 +80,23 @@ public class BibleStudyCenterApplicationTests {
         int count = 0;
 
         for (Book book : booksIterable) {
-            System.out.println(book.getName() + " - " + book.getChapters().size());
+            System.out.println(book.getName() + " - " + book.getChapters().size() + ", " + determineVerseNumbersInBook(book));
             count++;
         }
 
         Assert.assertEquals("The Holy Scriptures should have 66 books!", 66, count);
 
+    }
+
+    private int determineVerseNumbersInBook(Book book) {
+
+        int count = 0;
+
+        for (Chapter chapter : book.getChapters()) {
+            count += chapter.getVerses().size();
+        }
+
+        return count;
     }
 
     private String removeLeadingZeros(String text) {

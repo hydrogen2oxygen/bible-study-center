@@ -18,7 +18,7 @@ public class Chapter {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
     private Long bookId;
-    private Long number;
+    private Integer number;
     private String description;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
