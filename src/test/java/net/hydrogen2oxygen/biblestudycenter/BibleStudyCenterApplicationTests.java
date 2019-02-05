@@ -53,8 +53,6 @@ public class BibleStudyCenterApplicationTests {
 
             Book book = books.get(bookName);
 
-            System.out.println(book);
-
             if (book.getChapters().size() < Integer.parseInt(removeLeadingZeros(chapterValue))) {
 
                 Chapter chapter = new Chapter();
