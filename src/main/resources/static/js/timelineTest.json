@@ -1,0 +1,38 @@
+{
+  "title": {
+    "text": {
+      "headline": "The Message of the Bible",
+      "text": "<p>A red line</p>"
+    }
+  },
+  "scale":"human",
+  "events": [
+    {
+      "start_date": {
+        "year": "-4400"
+      },
+      "text": {
+        "headline": "Genesis",
+        "text": "<p>A beginning is a delicate process!</p>"
+      }
+    },
+    {
+      "start_date": {
+        "year": "1"
+      },
+      "text": {
+        "headline": "Game changer",
+        "text": "<p>Jesus birth</p>"
+      }
+    },
+    {
+      "start_date": {
+        "year": "1914"
+      },
+      "text": {
+        "headline": "War in heaven",
+        "text": "<p>The beginning of the end</p>"
+      }
+    }
+  ]
+}
